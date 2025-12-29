@@ -61,8 +61,8 @@ router.post('/login', async (req, res) => {
     }
 });
 
-const generateToken = (id: string) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET || 'secret', {
+const generateToken = (id: string, role: string = 'user') => {
+    return jwt.sign({ id, role }, process.env.JWT_SECRET || 'secret', {
         expiresIn: '30d',
     });
 };

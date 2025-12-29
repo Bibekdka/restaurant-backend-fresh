@@ -14,11 +14,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const Order_1 = require("../models/Order");
+const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
+// Get all orders (Admin only)
+router.get('/', auth_1.authenticate, auth_1.adminOnly, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const orders = yield Order_1.Order.find({}).populate('user', 'id name email');
+        res.json(orders);
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}));
+// Get logged in user orders
+router.get('/myorders', auth_1.authenticate, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const orders = yield Order_1.Order.find({ user: req.user.id });
+        res.json(orders);
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}));
 // Create new order
-router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { orderItems, shippingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice, user // In real app, get from req.user
-     } = req.body;
+router.post('/', auth_1.authenticate, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { orderItems, shippingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice, } = req.body;
     if (orderItems && orderItems.length === 0) {
         res.status(400).json({ message: 'No order items' });
         return;
@@ -26,7 +46,7 @@ router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     else {
         const order = new Order_1.Order({
             orderItems,
-            user: user || '654321098765432109876543', // Placeholder User ID if not auth
+            user: req.user.id,
             shippingAddress,
             paymentMethod,
             itemsPrice,

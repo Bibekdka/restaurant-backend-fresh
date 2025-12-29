@@ -70,8 +70,8 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         res.status(500).json({ message: error.message });
     }
 }));
-const generateToken = (id) => {
-    return jsonwebtoken_1.default.sign({ id }, process.env.JWT_SECRET || 'secret', {
+const generateToken = (id, role = 'user') => {
+    return jsonwebtoken_1.default.sign({ id, role }, process.env.JWT_SECRET || 'secret', {
         expiresIn: '30d',
     });
 };

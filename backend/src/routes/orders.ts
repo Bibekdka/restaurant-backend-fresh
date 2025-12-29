@@ -1,10 +1,32 @@
 import express from 'express';
 import { Order } from '../models/Order';
 
+import { authenticate, adminOnly, AuthRequest } from '../middleware/auth';
+
 const router = express.Router();
 
+// Get all orders (Admin only)
+router.get('/', authenticate, adminOnly, async (req, res) => {
+    try {
+        const orders = await Order.find({}).populate('user', 'id name email');
+        res.json(orders);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Get logged in user orders
+router.get('/myorders', authenticate, async (req: AuthRequest, res) => {
+    try {
+        const orders = await Order.find({ user: req.user!.id });
+        res.json(orders);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 // Create new order
-router.post('/', async (req, res) => {
+router.post('/', authenticate, async (req: AuthRequest, res) => {
     const {
         orderItems,
         shippingAddress,
@@ -13,7 +35,6 @@ router.post('/', async (req, res) => {
         taxPrice,
         shippingPrice,
         totalPrice,
-        user // In real app, get from req.user
     } = req.body;
 
     if (orderItems && orderItems.length === 0) {
@@ -22,7 +43,7 @@ router.post('/', async (req, res) => {
     } else {
         const order = new Order({
             orderItems,
-            user: user || '654321098765432109876543', // Placeholder User ID if not auth
+            user: req.user!.id,
             shippingAddress,
             paymentMethod,
             itemsPrice,

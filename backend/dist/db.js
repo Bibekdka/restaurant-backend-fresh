@@ -16,11 +16,32 @@ exports.connectDB = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const conn = yield mongoose_1.default.connect(process.env.DB_URI || 'mongodb://localhost:27017/restaurant-app');
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
+        console.log('🔄 Attempting to connect to MongoDB...');
+        // Debug: Log if MONGO_URI is set
+        const mongoUri = process.env.MONGO_URI || process.env.DB_URI;
+        if (!mongoUri) {
+            console.error('❌ ERROR: MONGO_URI environment variable is not set!');
+            console.log('Available env vars:', Object.keys(process.env).filter(k => k.includes('DB') || k.includes('MONGO')));
+        }
+        else {
+            // Mask the password for security
+            const maskedUri = mongoUri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@');
+            console.log('✓ MONGO_URI is configured:', maskedUri);
+        }
+        const conn = yield mongoose_1.default.connect(mongoUri || 'mongodb://localhost:27017/restaurant-app');
+        console.log('✅ MongoDB Connected Successfully!');
+        console.log(`📍 Database Host: ${conn.connection.host}`);
+        console.log(`📊 Database Name: ${conn.connection.name}`);
     }
     catch (error) {
-        console.error(`Error: ${error.message}`);
+        console.error('❌ MongoDB Connection Failed!');
+        console.error('💥 Error Details:', error.message);
+        if (error.code)
+            console.error('Error Code:', error.code);
+        console.error('⚠️  Please check:');
+        console.error('   1. MongoDB Atlas IP whitelist (allow 0.0.0.0/0)');
+        console.error('   2. Database credentials are correct');
+        console.error('   3. Cluster is running and accessible');
         process.exit(1);
     }
 });
