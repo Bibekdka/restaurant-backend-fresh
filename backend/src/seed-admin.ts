@@ -10,7 +10,7 @@ const seedAdmin = async () => {
         await mongoose.connect(process.env.DB_URI as string);
         console.log('Connected to MongoDB');
 
-        const adminEmail = 'bibekdeka97@gail.com';
+        const adminEmail = 'bibekdeka97@gmail.com';
         const adminPassword = '2345678'; // Wait, user said 12345678. I will use the user request.
         // User request: "password u ca keep 12345678"
 
