@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Product } from '../models/Product';
 import { AuthRequest } from '../middleware/auth';
-import { sanitizeString } from '../utils/validation';
+import { sanitizeString } from '../middleware/validate';
 
 export const getProducts = async (req: Request, res: Response) => {
     try {
