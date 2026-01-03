@@ -5,6 +5,7 @@ const reviewSchema = new mongoose.Schema({
     name: { type: String, required: true },
     rating: { type: Number, required: true, min: 1, max: 5 },
     comment: { type: String, required: true },
+    image: { type: String, required: false }, // Optional review image
     createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
@@ -23,7 +24,7 @@ const productSchema = new mongoose.Schema({
     image: {
         type: String,
         required: false,
-        get: function(this: any) {
+        get: function (this: any) {
             return this.images && this.images.length > 0 ? this.images[0].url : '';
         }
     },

@@ -113,7 +113,7 @@ export const deleteProduct = async (req: AuthRequest, res: Response) => {
 
 export const createReview = async (req: any, res: Response) => {
     try {
-        const { rating, comment, name, user } = req.body;
+        const { rating, comment, name, user, image } = req.body;
 
         const product = await Product.findById(req.params.id);
         if (!product) {
@@ -125,6 +125,7 @@ export const createReview = async (req: any, res: Response) => {
             rating: parseInt(rating),
             comment: sanitizeString(comment, 500),
             user: user || '000000000000000000000000',
+            image: image || null,
             createdAt: new Date(),
         };
 
