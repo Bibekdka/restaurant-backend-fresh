@@ -17,7 +17,12 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
             return res.status(401).json({ message: 'No authentication token provided' });
         }
 
-        const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            return res.status(500).json({ message: 'Server configuration error: JWT_SECRET is not set' });
+        }
+
+        const decoded: any = jwt.verify(token, secret);
         req.user = { id: decoded.id, role: decoded.role || 'user' };
         next();
     } catch (error: any) {
