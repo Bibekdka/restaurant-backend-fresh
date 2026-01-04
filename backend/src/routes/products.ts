@@ -1,7 +1,7 @@
 import express from 'express';
 import { authenticate, adminOnly } from '../middleware/auth';
 import { validate } from '../middleware/validate';
-import { productSchema, reviewSchema } from '../schemas';
+import { productSchema, productUpdateSchema, reviewSchema } from '../schemas';
 import * as productController from '../controllers/productController';
 
 const router = express.Router();
@@ -12,7 +12,7 @@ router.get('/:id', productController.getProductById);
 
 // Admin routes
 router.post('/', authenticate, adminOnly, validate(productSchema), productController.createProduct);
-router.put('/:id', authenticate, adminOnly, productController.updateProduct);
+router.put('/:id', authenticate, adminOnly, validate(productUpdateSchema), productController.updateProduct);
 router.delete('/:id', authenticate, adminOnly, productController.deleteProduct);
 
 // Image management
