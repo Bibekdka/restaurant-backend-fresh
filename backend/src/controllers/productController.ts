@@ -173,6 +173,30 @@ export const deleteReview = async (req: AuthRequest, res: Response) => {
     }
 };
 
+export const addMultipleImages = async (req: AuthRequest, res: Response) => {
+    try {
+        const { images } = req.body; // Array of {url, public_id}
+        if (!images || !Array.isArray(images) || images.length === 0) {
+            return res.status(400).json({ message: 'Images array is required' });
+        }
+
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+
+        if (product.images.length + images.length > 20) {
+            return res.status(400).json({ message: 'Maximum 20 images per product allowed' });
+        }
+
+        const validImages = images.filter(img => img.url);
+        product.images.push(...validImages);
+        await product.save();
+
+        res.status(201).json({ message: `${validImages.length} images added`, product });
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
 export const addImage = async (req: AuthRequest, res: Response) => {
     try {
         const { url, public_id } = req.body;

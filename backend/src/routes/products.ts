@@ -16,6 +16,7 @@ router.put('/:id', authenticate, adminOnly, productController.updateProduct);
 router.delete('/:id', authenticate, adminOnly, productController.deleteProduct);
 
 // Image management
+router.post('/:id/images/bulk', authenticate, adminOnly, productController.addMultipleImages);
 router.post('/:id/images', authenticate, adminOnly, productController.addImage);
 router.delete('/:id/images/:imageIndex', authenticate, adminOnly, productController.deleteImage);
 
