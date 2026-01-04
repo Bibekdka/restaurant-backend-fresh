@@ -105,3 +105,44 @@ export const getOrderById = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const updateOrderToPaid = async (req: AuthRequest, res: Response) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (order) {
+            order.isPaid = true;
+            order.paidAt = new Date();
+            order.paymentResult = {
+                id: req.body.id,
+                status: req.body.status,
+                email_address: req.body.email_address,
+            };
+
+            const updatedOrder = await order.save();
+            res.json(updatedOrder);
+        } else {
+            res.status(404).json({ message: 'Order not found' });
+        }
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const updateOrderToDelivered = async (req: AuthRequest, res: Response) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (order) {
+            order.isDelivered = true;
+            order.deliveredAt = new Date();
+
+            const updatedOrder = await order.save();
+            res.json(updatedOrder);
+        } else {
+            res.status(404).json({ message: 'Order not found' });
+        }
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};

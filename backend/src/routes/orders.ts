@@ -10,5 +10,5 @@ router.post('/', authenticate, validate(orderSchema), orderController.createOrde
 router.get('/myorders', authenticate, orderController.getMyOrders);
 router.get('/:id', authenticate, orderController.getOrderById);
 router.get('/', authenticate, adminOnly, orderController.getOrders);
-
-export default router;
+router.put('/:id/pay', authenticate, adminOnly, orderController.updateOrderToPaid);
+router.put('/:id/deliver', authenticate, adminOnly, orderController.updateOrderToDelivered);

@@ -12,3 +12,8 @@ export const validate = (schema: ZodSchema<any>) => (req: Request, res: Response
         });
     }
 };
+
+export const sanitizeString = (str: any, maxLength: number = 1000): string => {
+    if (!str) return '';
+    return String(str).substring(0, maxLength);
+};
