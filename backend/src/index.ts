@@ -39,9 +39,6 @@ console.log('================================================');
 // Middleware configuration
 console.log('⚙️  Configuring middleware...');
 
-// Sentry: Handlers.requestHandler() and tracingHandler() are no longer needed/available in newer versions
-// if tracing is enabled via integrations (which is default/configured in init).
-
 app.use(helmet());
 app.use(compression());
 app.use(express.json());
@@ -129,14 +126,6 @@ app.get('/', (req, res) => {
         version: '1.0.0'
     });
 });
-
-// The error handler must be before any other error middleware and after all controllers
-// Sentry.setupExpressErrorHandler(app); // Try to see if this method exists, or use generic error handling
-// Since we are unsure of exact version helper availability without docs, and Handlers failed,
-// we will comment out broken handlers and rely on Sentry's auto-instrumentation or basic capture.
-// If Sentry.setupExpressErrorHandler exists, use it. But TS might complain if types are missing.
-// For now, let's just make it COMPILE by removing broken lines.
-// app.use(Sentry.Handlers.errorHandler());
 
 // Optional: Custom error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
