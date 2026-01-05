@@ -36,6 +36,7 @@ exports.reviewSchema = zod_1.z.object({
         rating: zod_1.z.number().min(1).max(5),
         comment: zod_1.z.string().min(5).max(500),
         name: zod_1.z.string().optional(),
+        image: zod_1.z.string().optional(),
     }),
 });
 exports.orderSchema = zod_1.z.object({

@@ -35,6 +35,7 @@ export const reviewSchema = z.object({
         rating: z.number().min(1).max(5),
         comment: z.string().min(5).max(500),
         name: z.string().optional(),
+        image: z.string().optional(),
     }),
 });
 

@@ -3,7 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sanitizeString = exports.validate = void 0;
 const validate = (schema) => (req, res, next) => {
     try {
-        schema.parse(req.body);
+        schema.parse({
+            body: req.body,
+            query: req.query,
+            params: req.params,
+        });
         next();
     }
     catch (error) {
