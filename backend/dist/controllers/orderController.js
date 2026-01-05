@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateOrderToDelivered = exports.updateOrderToPaid = exports.getOrderById = exports.createOrder = exports.getMyOrders = exports.getOrders = void 0;
+exports.getDashboardStats = exports.updateOrderStatus = exports.updateOrderToDelivered = exports.updateOrderToPaid = exports.getOrderById = exports.createOrder = exports.getMyOrders = exports.getOrders = void 0;
 const Order_1 = require("../models/Order");
 const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -130,6 +130,8 @@ const updateOrderToDelivered = (req, res) => __awaiter(void 0, void 0, void 0, f
         if (order) {
             order.isDelivered = true;
             order.deliveredAt = new Date();
+            // Also update status to Delivered
+            order.status = 'Delivered';
             const updatedOrder = yield order.save();
             res.json(updatedOrder);
         }
@@ -142,3 +144,59 @@ const updateOrderToDelivered = (req, res) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.updateOrderToDelivered = updateOrderToDelivered;
+const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { status } = req.body;
+        const order = yield Order_1.Order.findById(req.params.id);
+        if (order) {
+            order.status = status;
+            // Sync legacy boolean flags
+            if (status === 'Delivered') {
+                order.isDelivered = true;
+                order.deliveredAt = new Date();
+            }
+            const updatedOrder = yield order.save();
+            res.json(updatedOrder);
+        }
+        else {
+            res.status(404).json({ message: 'Order not found' });
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+exports.updateOrderStatus = updateOrderStatus;
+const getDashboardStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const totalOrders = yield Order_1.Order.countDocuments();
+        const totalDelivered = yield Order_1.Order.countDocuments({ isDelivered: true });
+        // Calculate total revenue
+        const orders = yield Order_1.Order.find({ isPaid: true }); // Assuming revenue is only from paid orders? Or all orders?
+        // Let's assume all orders for now as "Total Value" regardless of payment status (e.g. COD)
+        const allOrders = yield Order_1.Order.find({});
+        const totalRevenue = allOrders.reduce((acc, order) => acc + (order.totalPrice || 0), 0);
+        // Date-wise aggregation
+        const dateStats = yield Order_1.Order.aggregate([
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 },
+                    totalSales: { $sum: "$totalPrice" }
+                }
+            },
+            { $sort: { _id: -1 } },
+            { $limit: 7 } // Last 7 days
+        ]);
+        res.json({
+            totalOrders,
+            totalDelivered,
+            totalRevenue,
+            dateStats
+        });
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+exports.getDashboardStats = getDashboardStats;

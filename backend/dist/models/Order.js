@@ -30,5 +30,10 @@ const orderSchema = new mongoose_1.default.Schema({
     paidAt: { type: Date },
     isDelivered: { type: Boolean, required: true, default: false }, // Critical for Admin
     deliveredAt: { type: Date },
+    status: {
+        type: String,
+        enum: ['Placed', 'Accepted', 'Rejected', 'In Kitchen', 'Out for Delivery', 'Delivered', 'Cancelled'],
+        default: 'Placed'
+    },
 }, { timestamps: true });
 exports.Order = mongoose_1.default.model('Order', orderSchema);
