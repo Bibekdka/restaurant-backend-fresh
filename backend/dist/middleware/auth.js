@@ -13,7 +13,11 @@ const authenticate = (req, res, next) => {
         if (!token) {
             return res.status(401).json({ message: 'No authentication token provided' });
         }
-        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || 'secret');
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            return res.status(500).json({ message: 'Server configuration error: JWT_SECRET is not set' });
+        }
+        const decoded = jsonwebtoken_1.default.verify(token, secret);
         req.user = { id: decoded.id, role: decoded.role || 'user' };
         next();
     }

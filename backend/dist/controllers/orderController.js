@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOrderById = exports.createOrder = exports.getMyOrders = exports.getOrders = void 0;
+exports.updateOrderToDelivered = exports.updateOrderToPaid = exports.getOrderById = exports.createOrder = exports.getMyOrders = exports.getOrders = void 0;
 const Order_1 = require("../models/Order");
 const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -101,3 +101,44 @@ const getOrderById = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.getOrderById = getOrderById;
+const updateOrderToPaid = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const order = yield Order_1.Order.findById(req.params.id);
+        if (order) {
+            order.isPaid = true;
+            order.paidAt = new Date();
+            order.paymentResult = {
+                id: req.body.id,
+                status: req.body.status,
+                email_address: req.body.email_address,
+            };
+            const updatedOrder = yield order.save();
+            res.json(updatedOrder);
+        }
+        else {
+            res.status(404).json({ message: 'Order not found' });
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+exports.updateOrderToPaid = updateOrderToPaid;
+const updateOrderToDelivered = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const order = yield Order_1.Order.findById(req.params.id);
+        if (order) {
+            order.isDelivered = true;
+            order.deliveredAt = new Date();
+            const updatedOrder = yield order.save();
+            res.json(updatedOrder);
+        }
+        else {
+            res.status(404).json({ message: 'Order not found' });
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+exports.updateOrderToDelivered = updateOrderToDelivered;

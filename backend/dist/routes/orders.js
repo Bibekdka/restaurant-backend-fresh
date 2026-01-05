@@ -46,4 +46,6 @@ router.post('/', auth_1.authenticate, (0, validate_1.validate)(schemas_1.orderSc
 router.get('/myorders', auth_1.authenticate, orderController.getMyOrders);
 router.get('/:id', auth_1.authenticate, orderController.getOrderById);
 router.get('/', auth_1.authenticate, auth_1.adminOnly, orderController.getOrders);
+router.put('/:id/pay', auth_1.authenticate, auth_1.adminOnly, orderController.updateOrderToPaid);
+router.put('/:id/deliver', auth_1.authenticate, auth_1.adminOnly, orderController.updateOrderToDelivered);
 exports.default = router;

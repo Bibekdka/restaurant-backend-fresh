@@ -50,6 +50,7 @@ router.post('/', auth_1.authenticate, auth_1.adminOnly, (0, validate_1.validate)
 router.put('/:id', auth_1.authenticate, auth_1.adminOnly, productController.updateProduct);
 router.delete('/:id', auth_1.authenticate, auth_1.adminOnly, productController.deleteProduct);
 // Image management
+router.post('/:id/images/bulk', auth_1.authenticate, auth_1.adminOnly, productController.addMultipleImages);
 router.post('/:id/images', auth_1.authenticate, auth_1.adminOnly, productController.addImage);
 router.delete('/:id/images/:imageIndex', auth_1.authenticate, auth_1.adminOnly, productController.deleteImage);
 // Reviews

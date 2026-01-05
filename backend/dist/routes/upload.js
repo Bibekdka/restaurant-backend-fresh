@@ -41,23 +41,69 @@ const upload = (0, multer_1.default)({
         fileSize: 5 * 1024 * 1024, // 5MB limit
     }
 });
-// Upload image endpoint (auth required)
-router.post('/', auth_1.authenticate, upload.single('image'), (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ message: 'No image file provided' });
+// Error handler for multer
+const handleMulterError = (err, req, res, next) => {
+    if (err instanceof multer_1.default.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({ message: 'File size too large. Maximum 5MB allowed.' });
         }
-        if (!req.file.path) {
-            return res.status(400).json({ message: 'Image upload failed' });
+        return res.status(400).json({ message: `Upload error: ${err.message}` });
+    }
+    if (err) {
+        return res.status(400).json({ message: err.message || 'Upload failed' });
+    }
+    next();
+};
+// Single image upload endpoint
+router.post('/', auth_1.authenticate, (req, res) => {
+    upload.single('image')(req, res, (err) => {
+        if (err) {
+            return handleMulterError(err, req, res, () => { });
         }
-        res.status(200).json({
-            url: req.file.path,
-            public_id: req.file.public_id || '',
-        });
-    }
-    catch (error) {
-        console.error('Upload error:', error);
-        res.status(400).json({ message: error.message || 'Image upload failed' });
-    }
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'No image file provided' });
+            }
+            if (!req.file.path) {
+                return res.status(400).json({ message: 'Image upload failed' });
+            }
+            console.log('✓ Image uploaded:', req.file.path);
+            res.status(200).json({
+                url: req.file.path,
+                public_id: req.file.filename || req.file.public_id || '',
+            });
+        }
+        catch (error) {
+            console.error('Upload error:', error);
+            res.status(400).json({ message: error.message || 'Image upload failed' });
+        }
+    });
+});
+// Multiple images upload endpoint (NEW)
+router.post('/multiple', auth_1.authenticate, (req, res) => {
+    upload.array('images', 10)(req, res, (err) => {
+        if (err) {
+            return handleMulterError(err, req, res, () => { });
+        }
+        try {
+            const files = req.files;
+            if (!files || files.length === 0) {
+                return res.status(400).json({ message: 'No image files provided' });
+            }
+            const uploadedImages = files.map(file => ({
+                url: file.path,
+                public_id: file.filename || file.public_id || '',
+            }));
+            console.log(`✓ ${uploadedImages.length} images uploaded`);
+            res.status(200).json({
+                images: uploadedImages,
+                count: uploadedImages.length
+            });
+        }
+        catch (error) {
+            console.error('Multiple upload error:', error);
+            res.status(400).json({ message: error.message || 'Image upload failed' });
+        }
+    });
 });
 exports.default = router;
